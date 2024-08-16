@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  volumes:
+  - name: html-volume
+    emptyDir: {}
+
+  initContainers:
+  - name: fetch-html
+    image: curlimages/curl:latest
+    command: ['sh', '-c', 'curl -o /usr/share/nginx/html/index.html http://remote-server/custom-index.html']
+    volumeMounts:
+    - name: html-volume
+      mountPath: /usr/share/nginx/html
+
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: html-volume
+      mountPath: /usr/share/nginx/html

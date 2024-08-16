@@ -1,8 +1,13 @@
+# CUSTOM REMOTE INDEX.HTML
 apiVersion: v1
 kind: Pod
 metadata:
   name: nginx-pod
 spec:
+  dnsConfig:
+    nameservers:
+    - 8.8.8.8 
+
   volumes:
   - name: html-volume
     emptyDir: {}

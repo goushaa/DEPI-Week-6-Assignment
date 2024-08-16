@@ -1,0 +1,68 @@
+# LIVENESS PROBE
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  dnsConfig:
+    nameservers:
+    - 8.8.8.8 
+
+  volumes:
+  - name: html-volume
+    emptyDir: {}
+  - name: nginx-config-volume
+    configMap:
+      name: nginx-config
+
+  initContainers:
+  - name: fetch-html
+    image: curlimages/curl:latest
+    command: ['sh', '-c', 'curl -o /usr/share/nginx/html/index.html https://raw.githubusercontent.com/goushaa/DEPI-Week-6-Assignment/main/index.html']
+    volumeMounts:
+    - name: html-volume
+      mountPath: /usr/share/nginx/html
+
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: html-volume
+      mountPath: /usr/share/nginx/html
+    - name: nginx-config-volume
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: default.conf
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  default.conf: |
+    server {
+        listen 80;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        location /healthz {
+            return 200 'OK';
+            add_header Content-Type text/plain;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }

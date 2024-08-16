@@ -10,7 +10,7 @@ spec:
   initContainers:
   - name: fetch-html
     image: curlimages/curl:latest
-    command: ['sh', '-c', 'curl -o /usr/share/nginx/html/index.html http://remote-server/custom-index.html']
+    command: ['sh', '-c', 'curl -o /usr/share/nginx/html/index.html https://raw.githubusercontent.com/goushaa/DEPI-Week-6-Assignment/main/index.html']
     volumeMounts:
     - name: html-volume
       mountPath: /usr/share/nginx/html
